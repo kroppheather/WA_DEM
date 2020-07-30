@@ -4,6 +4,7 @@ library(raster)
 library(BAMMtools)
 
 dirD <- "/Users/hkropp/Google Drive/GIS/WA_dem/WA_dem"
+dirOut <- "/Users/hkropp/Google Drive/research/mapping/WA_dem"
 
 dem <- raster(paste0(dirD,"/psdem/psdem_2005.asc"))
 
@@ -27,22 +28,10 @@ hillL <- mask(hills,landMask,maskvalue = 0)
 extCr <- c()
 
 #mapping ----
+#set up colors
 colWater <- rev(carto_pal(6,"Teal"))
-colLand7 <- c(colWater[6],carto_pal(8, "Antique"))
-display_carto_pal(8,"ArmyRose")
-colLand <- terrain.colors(9)
-colLand2 <- c(colWater[6],"#698474","#436e4f","#669b7c","#b0a160","#935900","#594a4e","#e5d8bf","white")
-colLand3 <- c(colWater[6],"#1a3c40","#144d53","#307672","#b7e1b5","#de774e","#684656","#1c1124","white")
 
-colLand4 <- c(colWater[6],#water transition
-              "#b8b2a6",#lowland wetland
-              "#5c8d89",#forest
-              "#74b49b",#higher elevation
-              "#a7d7c5",#vegetation to treeline
-              "#d7c79e",#high elev 1
-              "#e08f62",#high elev 2
-              "#a35638",#high elev 3
-              "#dddddd")#mountain top
+
 colLand5 <- c(colWater[6],#water transition
               "#6fb98f",#lowland wetland
               "#2c7873",#forest
@@ -54,45 +43,31 @@ colLand5 <- c(colWater[6],#water transition
               "#dddddd")#mountain top
 
 
-colLand6 <- c(colWater[6],#water transition
-              "#b8b2a6",#lowland wetland
-              "#616f39",#forest
-              "#004a2f",#higher elevation
-              "#004a2f",#vegetation to treeline
-              "#004a2f",#high elev 1
-              "#d8aeae",#high elev 2
-              "#9791a0",#high elev 3
-              "#dddddd")#mountain top
-
 plot(seq(1,9), pch=19, col=colLand6)
-
+#set up breaks
 watBreaks <- c(-1000,-600,-400,-200,-100,-50,-1)
 landBreaks <-c(0,100,500,1200,1800,3800,4500,5500,13000) 
 BreaksAll <- c(watBreaks,landBreaks)
-cols <- c(colWater, colLand2)
-cols2 <- c(colWater, colLand3)
-cols3 <- c(colWater, colLand4)
+
 cols4 <- c(colWater, colLand5)
-cols5 <- c(colWater, colLand6)
-cols6 <- c(colWater, colLand7)
 
-plot(dem, breaks=BreaksAll,col=cols, legend=FALSE )
-plot(hillL, col=grey(0:100/100), alpha=0.35,add=TRUE, legend=FALSE)
+dem@extent
+#change extent
+extD <- c(1000000,1357000,10000,562000 )
 
-plot(dem, breaks=BreaksAll,col=cols2, legend=FALSE )
-plot(hillL, col=grey(0:100/100), alpha=0.35,add=TRUE, legend=FALSE)
+plotRatio <- (extD[2] - extD[1])/(extD[4] - extD[3])
+#total height
+png(paste0(dirOut, "/WA_dem.png"), height = 6, width = plotRatio*6, units = "cm", res=300)
 
-plot(dem, breaks=BreaksAll,col=cols3, legend=FALSE )
-plot(hillL, col=grey(0:100/100), alpha=0.35,add=TRUE, legend=FALSE)
 
-plot(dem, breaks=BreaksAll,col=cols4, legend=FALSE )
-plot(hillL, col=grey(0:100/100), alpha=0.15,add=TRUE, legend=FALSE)
+plot(c(0,1),c(0,1), xlim=c(1000000,1357000), ylim=c(10000,562000), axes=FALSE,
+     ylab = " ", xlab = " ", xaxs="i",yaxs="i")
 
-plot(dem, breaks=BreaksAll,col=cols5, legend=FALSE )
-plot(hillL, col=grey(0:100/100), alpha=0.45,add=TRUE, legend=FALSE)
+plot(dem, breaks=BreaksAll,col=cols4,ext = extD, legend=FALSE,add=TRUE )
 
-plot(dem, breaks=BreaksAll,col=cols6, legend=FALSE )
-plot(hillL, col=grey(0:100/100), alpha=0.45,add=TRUE, legend=FALSE)
+image(hillL, col=grey(0:100/100), alpha=0.15, ext = extD, add=TRUE, legend=FALSE)
+
+dev.off()
 
 #read in shapefiles ----
 hydro <- readOGR("/Users/hkropp/Google Drive/GIS/vector/water/DNR_Hydrography_-_Water_Bodies-shp/DNR_Hydrography_-_Water_Bodies.shp")
