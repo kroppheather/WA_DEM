@@ -1,8 +1,8 @@
 library(rgdal)
 library(rcartocolor)
 library(raster)
-library(BAMMtools)
 library(extrafont)
+library(sysfonts)
 
 dirD <- "/Users/hkropp/Google Drive/GIS/WA_dem/WA_dem"
 dirOut <- "/Users/hkropp/Google Drive/research/mapping/WA_dem"
@@ -26,9 +26,9 @@ reclass <- matrix(c(-900,-1,0,
 landMask <- reclassify(dem,reclass)
 hillL <- mask(hills,landMask,maskvalue = 0)
 
-extCr <- c()
 
-#mapping ----
+
+#colorful mapping ----
 #set up colors
 colWater <- rev(carto_pal(6,"Teal"))
 
@@ -60,26 +60,60 @@ extD <- c(1000000,1340000,10000,530000 )
 #total height
 font_add("Raleway", "Raleway-Regular.ttf")
 
-
+textA <- strwrap("Combined bathymetry and topography of the Puget Lowlands, 
+             Washington State (January 2005). David Finlayson.",
+                 width=30)
 
 png(paste0(dirOut, "/WA_dem.png"), height = 30, width = 20, units = "in", res=300)
 
-par(family="Raleway",mai=c(2,1,2,1))
-plot(dem, breaks=BreaksAll,col=cols4,ext = extD, legend=FALSE,axes=FALSE, bty="n" )
+par(family="Raleway",mai=c(3,2,3,2))
+plot(dem, breaks=BreaksAll,col=cols4,maxpixels = 2000000, ext = extD, legend=FALSE,axes=FALSE, bty="n", box = FALSE )
 
-plot(hillL, col=grey(0:100/100), alpha=0.15, ext = extD, add=TRUE, legend=FALSE)
-legend("topleft", c("Puget Sound"), pch=19, col="white", bty="n")
+plot(hillL, col=grey(0:100/100), alpha=0.15, ext = extD, add=TRUE, legend=FALSE, box = FALSE)
+legend("topleft", c(" "), title= "Puget Sound", cex =5, pch=19, 
+       col="#dddddd",bg="#dddddd", box.col="#dddddd", title.col = "#2c7873")
+for(i in 1:length(textA)){
+  text(1065000,509000-(i*7000),textA[i], cex=1.5, col="#ba7967")
+}
 dev.off()
 
-plot(dem, breaks=BreaksAll,col=cols4,ext = extD, legend=FALSE,axes=FALSE, bty="n" )
+#second color scheme mapping ----
+#set up colors
+colWater <- rev(carto_pal(6,"Teal"))
 
 
-font_add("Raleway", "Raleway-Regular.ttf")
+colLandb <- c(colWater[6],#water transition
+              "azure1",#lowland wetland
+              "antiquewhite3",#forest
+              "darkseagreen3",#higher elevation
+              "darkseagreen3",#vegetation to treeline
+              "darkseagreen4",#high elev 1
+              "seashell3",#high elev 2
+              "lavenderblush3",#high elev 3
+              "#white")#mountain top
 
-par(family="Raleway")
-plot(c(0,1),c(0,1))
 
-legend("topleft",c("test"), text.font=1,pch=19, col="white", bty="n")
+plot(seq(1,9), pch=19, col=colLandb)
+#set up breaks
+watBreaks <- c(-1000,-600,-400,-200,-100,-50,-1)
+landBreaks <-c(0,100,500,1200,1800,3800,4500,5500,13000) 
+BreaksAll <- c(watBreaks,landBreaks)
+
+colsb <- c(colWater, colLand5)
+
+
+png(paste0(dirOut, "/WA_dem_dull.png"), height = 30, width = 20, units = "in", res=300)
+
+par(family="Raleway",mai=c(3,2,3,2))
+plot(dem, breaks=BreaksAll,col=colsb,maxpixels = 2000000, ext = extD, legend=FALSE,axes=FALSE, bty="n", box = FALSE )
+
+plot(hillL, col=grey(0:100/100), alpha=0.25, ext = extD, add=TRUE, legend=FALSE, box = FALSE)
+legend("topleft", c(" "), title= "Puget Sound", cex =5, pch=19, 
+       col="dddddd",bg="#dddddd", box.col="#dddddd", title.col = "#2c7873")
+for(i in 1:length(textA)){
+  text(1008000,509000-(i*7000),textA[i], cex=2, col="#ffdecf")
+}
+dev.off()
 
 #read in shapefiles ----
 hydro <- readOGR("/Users/hkropp/Google Drive/GIS/vector/water/DNR_Hydrography_-_Water_Bodies-shp/DNR_Hydrography_-_Water_Bodies.shp")
