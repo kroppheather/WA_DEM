@@ -2,6 +2,7 @@ library(rgdal)
 library(rcartocolor)
 library(raster)
 library(BAMMtools)
+library(extrafont)
 
 dirD <- "/Users/hkropp/Google Drive/GIS/WA_dem/WA_dem"
 dirOut <- "/Users/hkropp/Google Drive/research/mapping/WA_dem"
@@ -53,21 +54,32 @@ cols4 <- c(colWater, colLand5)
 
 dem@extent
 #change extent
-extD <- c(1000000,1357000,10000,562000 )
+extD <- c(1000000,1340000,10000,530000 )
 
-plotRatio <- (extD[2] - extD[1])/(extD[4] - extD[3])
+
 #total height
-png(paste0(dirOut, "/WA_dem.png"), height = 6, width = plotRatio*6, units = "cm", res=300)
+font_add("Raleway", "Raleway-Regular.ttf")
 
 
-plot(c(0,1),c(0,1), xlim=c(1000000,1357000), ylim=c(10000,562000), axes=FALSE,
-     ylab = " ", xlab = " ", xaxs="i",yaxs="i")
 
-plot(dem, breaks=BreaksAll,col=cols4,ext = extD, legend=FALSE,add=TRUE )
+png(paste0(dirOut, "/WA_dem.png"), height = 30, width = 20, units = "in", res=300)
 
-image(hillL, col=grey(0:100/100), alpha=0.15, ext = extD, add=TRUE, legend=FALSE)
+par(family="Raleway",mai=c(2,1,2,1))
+plot(dem, breaks=BreaksAll,col=cols4,ext = extD, legend=FALSE,axes=FALSE, bty="n" )
 
+plot(hillL, col=grey(0:100/100), alpha=0.15, ext = extD, add=TRUE, legend=FALSE)
+legend("topleft", c("Puget Sound"), pch=19, col="white", bty="n")
 dev.off()
+
+plot(dem, breaks=BreaksAll,col=cols4,ext = extD, legend=FALSE,axes=FALSE, bty="n" )
+
+
+font_add("Raleway", "Raleway-Regular.ttf")
+
+par(family="Raleway")
+plot(c(0,1),c(0,1))
+
+legend("topleft",c("test"), text.font=1,pch=19, col="white", bty="n")
 
 #read in shapefiles ----
 hydro <- readOGR("/Users/hkropp/Google Drive/GIS/vector/water/DNR_Hydrography_-_Water_Bodies-shp/DNR_Hydrography_-_Water_Bodies.shp")
