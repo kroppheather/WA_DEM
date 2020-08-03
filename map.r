@@ -62,18 +62,18 @@ font_add("Raleway", "Raleway-Regular.ttf")
 
 textA <- strwrap("Combined bathymetry and topography of the Puget Lowlands, 
              Washington State (January 2005). David Finlayson.",
-                 width=30)
+                 width=40)
 
 png(paste0(dirOut, "/WA_dem.png"), height = 30, width = 20, units = "in", res=300)
 
 par(family="Raleway",mai=c(3,2,3,2))
-plot(dem, breaks=BreaksAll,col=cols4,maxpixels = 2000000, ext = extD, legend=FALSE,axes=FALSE, bty="n", box = FALSE )
+plot(dem, breaks=BreaksAll,col=cols4,maxpixels = 13000000, ext = extD, legend=FALSE,axes=FALSE, bty="n", box = FALSE )
 
-plot(hillL, col=grey(0:100/100), alpha=0.15, ext = extD, add=TRUE, legend=FALSE, box = FALSE)
-legend("topleft", c(" "), title= "Puget Sound", cex =5, pch=19, 
+plot(hillL, col=grey(0:100/100), alpha=0.15,maxpixels = 13000000, ext = extD, add=TRUE, legend=FALSE, box = FALSE)
+legend("topleft", c(" "), title= "Puget Sound", cex =5.25, pch=19, 
        col="#dddddd",bg="#dddddd", box.col="#dddddd", title.col = "#2c7873")
 for(i in 1:length(textA)){
-  text(1065000,509000-(i*7000),textA[i], cex=1.5, col="#ba7967")
+  text(1005000,501000-(i*7000),textA[i], cex=1.6, col="#ba7967",adj = c(0,0))
 }
 dev.off()
 
@@ -83,14 +83,14 @@ colWater <- rev(carto_pal(6,"Teal"))
 
 
 colLandb <- c(colWater[6],#water transition
-              "azure1",#lowland wetland
-              "antiquewhite3",#forest
+              "azure1",#lowland wetland azure1"
+              "antiquewhite3", #forest
               "darkseagreen3",#higher elevation
               "darkseagreen3",#vegetation to treeline
               "darkseagreen4",#high elev 1
               "seashell3",#high elev 2
               "lavenderblush3",#high elev 3
-              "#white")#mountain top
+              "white")#mountain top
 
 
 plot(seq(1,9), pch=19, col=colLandb)
@@ -99,19 +99,18 @@ watBreaks <- c(-1000,-600,-400,-200,-100,-50,-1)
 landBreaks <-c(0,100,500,1200,1800,3800,4500,5500,13000) 
 BreaksAll <- c(watBreaks,landBreaks)
 
-colsb <- c(colWater, colLand5)
-
+colsb <- c(colWater, colLandb)
 
 png(paste0(dirOut, "/WA_dem_dull.png"), height = 30, width = 20, units = "in", res=300)
 
 par(family="Raleway",mai=c(3,2,3,2))
-plot(dem, breaks=BreaksAll,col=colsb,maxpixels = 2000000, ext = extD, legend=FALSE,axes=FALSE, bty="n", box = FALSE )
+plot(dem, breaks=BreaksAll,col=colsb, ext = extD, maxpixels = 13000000, legend=FALSE,axes=FALSE, bty="n", box = FALSE )
 
-plot(hillL, col=grey(0:100/100), alpha=0.25, ext = extD, add=TRUE, legend=FALSE, box = FALSE)
-legend("topleft", c(" "), title= "Puget Sound", cex =5, pch=19, 
-       col="dddddd",bg="#dddddd", box.col="#dddddd", title.col = "#2c7873")
+plot(hillL, col=grey(0:100/100), alpha=0.55, ext = extD,maxpixels = 13000000,  add=TRUE, legend=FALSE, box = FALSE)
+legend("topleft", c(" "), title= "Puget Sound", cex =5.25, pch=19, 
+       col="azure1",bg="azure1", box.col="azure1", title.col = "darkseagreen4")
 for(i in 1:length(textA)){
-  text(1008000,509000-(i*7000),textA[i], cex=2, col="#ffdecf")
+  text(1005000,501000-(i*7000),textA[i], cex=1.6, col="darkseagreen3",adj = c(0,0))
 }
 dev.off()
 
@@ -120,7 +119,21 @@ hydro <- readOGR("/Users/hkropp/Google Drive/GIS/vector/water/DNR_Hydrography_-_
 
 hydro@proj4string
 hyrop <- spTransform(hydro, dem@crs)
+head(hyrop@data)
+unique(hyrop@data$WB_HYDR_FT)
 
+glac <- hyrop[hyrop@data$WB_HYDR_FT == "Glacier",]
+plot(glac)
+
+river <- hyrop[hyrop@data$WB_HYDR_FT == "Stream",]
+
+lakes <- hyrop[hyrop@data$WB_HYDR_FT == "Lake",]
+
+glacC <- crop(glac,dem)
+plot(glacC)
+
+lakesC <- crop(lakes,dem)
+plot(lakesC)
 
 
 plot(dem, breaks=BreaksAll,col=cols5, legend=FALSE )
